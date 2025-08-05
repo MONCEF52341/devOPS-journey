@@ -1,0 +1,13 @@
+FROM node:22-slim as build
+WORKDIR /app
+COPY package*.json ./
+RUN npm install -g pnpm
+RUN pnpm install
+ARG VITE_REACT_APP_API_URL
+ENV VITE_REACT_APP_API_URL=$VITE_REACT_APP_API_URL
+COPY . .
+RUN pnpm run build
+
+FROM nginx:alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+EXPOSE 80
